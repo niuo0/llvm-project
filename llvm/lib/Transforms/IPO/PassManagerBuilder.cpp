@@ -49,7 +49,11 @@
 #include "llvm/Transforms/Vectorize/SLPVectorizer.h"
 #include "llvm/Transforms/Vectorize/VectorCombine.h"
 
+#include "llvm/Transforms/Obfuscation/Obfuscation.h"
+
 using namespace llvm;
+
+//cl::opt<bool> RunStripSymbols("strip", cl::init(false), cl::desc("Enable the StripSymbols pass"));
 
 cl::opt<bool> RunPartialInlining("enable-partial-inlining", cl::init(false),
                                  cl::Hidden, cl::ZeroOrMore,
@@ -520,7 +524,7 @@ void PassManagerBuilder::populateModulePassManager(
   // Whether this is a default or *LTO pre-link pipeline. The FullLTO post-link
   // is handled separately, so just check this is not the ThinLTO post-link.
   bool DefaultOrPreLinkPipeline = !PerformThinLTO;
-
+    
   MPM.add(createAnnotation2MetadataLegacyPass());
 
   if (!PGOSampleUse.empty()) {
@@ -535,6 +539,9 @@ void PassManagerBuilder::populateModulePassManager(
   // Allow forcing function attributes as a debugging and tuning aid.
   MPM.add(createForceFunctionAttrsLegacyPass());
 
+    // Add custom obfuscation passes to PassManager
+    MPM.add(createObfuscationPass());
+    
   // If all optimizations are disabled, just run the always-inline pass and,
   // if enabled, the function merging pass.
   if (OptLevel == 0) {
