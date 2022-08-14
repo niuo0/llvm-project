@@ -50,9 +50,11 @@
 #include "llvm/Transforms/Vectorize/VectorCombine.h"
 
 #include "llvm/Transforms/Obfuscation/Obfuscation.h"
+#include "llvm/Transforms/Obfuscation/SymbolObfuscation.h"
 
 using namespace llvm;
 
+static cl::opt<bool>EnableSymbolObf("symbolobf", cl::init(false), cl::desc("ReWrite Symbols!"));
 //cl::opt<bool> RunStripSymbols("strip", cl::init(false), cl::desc("Enable the StripSymbols pass"));
 
 cl::opt<bool> RunPartialInlining("enable-partial-inlining", cl::init(false),
@@ -538,9 +540,9 @@ void PassManagerBuilder::populateModulePassManager(
 
   // Allow forcing function attributes as a debugging and tuning aid.
   MPM.add(createForceFunctionAttrsLegacyPass());
-
-    // Add custom obfuscation passes to PassManager
-    MPM.add(createObfuscationPass());
+    
+  // Add custom obfuscation passes to PassManager
+  MPM.add(createObfuscationPass());
     
   // If all optimizations are disabled, just run the always-inline pass and,
   // if enabled, the function merging pass.
@@ -1214,6 +1216,9 @@ void PassManagerBuilder::populateLTOPassManager(legacy::PassManagerBase &PM) {
 
   if (VerifyOutput)
     PM.add(createVerifierPass());
+    
+  if (EnableSymbolObf)
+    PM.add(createSymbolObfuscationPass());
 }
 
 LLVMPassManagerBuilderRef LLVMPassManagerBuilderCreate() {

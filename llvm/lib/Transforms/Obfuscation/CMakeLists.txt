@@ -9,6 +9,8 @@ add_llvm_library(LLVMObfuscation
   Obfuscation.cpp
   MBAUtils.cpp
   MBAObfuscation.cpp
+  SymbolObfuscation.cpp
+  
   DEPENDS
   intrinsics_gen
   )
